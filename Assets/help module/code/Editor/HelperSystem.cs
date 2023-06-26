@@ -1,9 +1,14 @@
+using System.ComponentModel.Design;
 using UnityEditor;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
+
+/*
+
 public class MenuTest : MonoBehaviour
 {
 
-
+    
     private string mainMenuName = "Helper system";
     // Add a menu item named "Do Something" to MyMenu in the menu bar.
     [MenuItem("Helper system/Do Something")]
@@ -72,6 +77,94 @@ public class MenuTest : MonoBehaviour
         Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
         Selection.activeObject = go;
         
+    }*/
+
+ class HelperSystem : EditorWindow
+{
+
+    string myString = "Hello World";
+    bool groupEnabled;
+    bool myBool = true;
+    float myTimeout = 1.23f;
+
+    // Add menu item named "My Window" to the Window menu
+    [MenuItem("Helper system/trigger manager")]
+    public static void ShowWindow()
+    {
+        //Show existing window instance. If one doesn't exist, make one.
+        EditorWindow.GetWindow(typeof(HelperSystem));
+    }
+
+    void OnGUI()
+    {
+        GUILayout.Label("Base Settings", EditorStyles.boldLabel);
+        myString = EditorGUILayout.TextField("Text Field", myString);
+
+        groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
+        myBool = EditorGUILayout.Toggle("Toggle", myBool);
+        myTimeout = EditorGUILayout.Slider("Timeout period in seconds", myTimeout, 0, 120);
+        EditorGUILayout.EndToggleGroup();
+
+        if (GUILayout.Button("Add trigger"))
+        {
+            AddTrigger();
+        }
+
+       
+
+       
+    
+}
+
+
+    void AddTrigger()
+    {
+        // Create a custom game object
+        // GameObject go = new GameObject("Help trigger");
+
+        GameObject myPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/help module/helperTrigger.prefab", typeof(GameObject));
+        Debug.Log(myPrefab);
+
+
+
+        GameObject helpTrigger = (GameObject)PrefabUtility.InstantiatePrefab(myPrefab);
+
+        helpTrigger.GetComponent<HelpTrigger>().sittuation = "test sitt";
+
+        helpTrigger.GetComponent<HelpTrigger>().storyLine = true;
+
+        helpTrigger.GetComponent<HelpTrigger>().triggerOnce = true;
+
+        helpTrigger.GetComponent<HelpTrigger>().contextualHints = true;
+
+        helpTrigger.GetComponent<HelpTrigger>().WaitPeriod = myTimeout;
+
+
+        // Ensure it gets reparented if this was a context click (otherwise does nothing)
+        // GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+
+        // Register the creation in the undo system
+        Undo.RegisterCreatedObjectUndo(helpTrigger, "Create " + myPrefab.name);
+        Selection.activeObject = helpTrigger;
+
     }
 
 }
+
+
+/*
+ *  public string sittuation = "test";
+
+    [Header("Show storyline help first")]
+    public bool storyLine = true;
+
+    [Header("Show storyline once in app liftime")]
+    public bool triggerOnce = true;
+
+    [Header("Show contextual hints")]
+    public bool contextualHints = true;
+
+    [Header("Timeout period for help trigger")]
+    [Tooltip("in seconds")]
+    public float WaitPeriod = 2;
+*/
